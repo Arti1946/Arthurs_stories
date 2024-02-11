@@ -29,7 +29,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "djoser",
+    "magic",
+    "drf_spectacular",
+    "django_filters",
+    "mutagen",
     "users.apps.UsersConfig",
     "content.apps.ContentConfig",
     "api.v1.apps.ApiConfig",
@@ -115,6 +120,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -134,3 +140,24 @@ DJOSER = {
     },
     "HIDE_USERS": True,
 }
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "ARTUR'S STORIES API",
+    "DESCRIPTION": ("API-Документация для SPA ARTUR'S STORIES."),
+    "VERSION": "0.1.0",
+    "SCHEMA_PATH_PREFIX": "/api/v1/",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
+
+QUANTITY_OF_FREE_CONTENT_PER_CLASS = 4
+VALID_AUDIO_FORMATS = ["mp3", "wav"]
+AGE_CHOICES = (
+    ("0-3", "0-3"),
+    ("3-6", "3-6"),
+    ("7-10", "7-10"),
+)
+TAGS = (
+    ("MORNING", "Утро"),
+    ("NOON", "День"),
+    ("EVENING", "Вечер"),
+)

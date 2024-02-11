@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import UniqueConstraint
 
-from .validators import validate_username
+from .validators import validate_username, validate_birth_date
 from content.models import Fairytale, Meditation, AudioBook, Lullaby
 
 
@@ -22,37 +22,39 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(
         "Фамилия", max_length=150, blank=False, null=False
     )
-    age = models.PositiveSmallIntegerField("Возраст", null=False, blank=False)
+    birth_date = models.DateField(
+        "Дата рождения", validators=[validate_birth_date]
+    )
     password = models.CharField(
         "Пароль", max_length=150, blank=False, null=False
     )
     is_premium = models.BooleanField("Оформлена подписка", default="False")
     favorite_fairytales = models.ManyToManyField(
         Fairytale,
-        through="Favorite",
+        through="FavoriteFairytale",
         through_fields=("users", "fairytales"),
-        related_name="fairytales",
+        related_name="users",
         verbose_name="Избранные сказки",
     )
     favorite_audiobooks = models.ManyToManyField(
         AudioBook,
-        through="Favorite",
+        through="FavoriteAudiobook",
         through_fields=("users", "audiobooks"),
-        related_name="audiobooks",
+        related_name="users",
         verbose_name="Избранные аудиокниги",
     )
     favorite_lullabies = models.ManyToManyField(
         Lullaby,
-        through="Favorite",
+        through="FavoriteLullaby",
         through_fields=("users", "lullabies"),
-        related_name="lullabies",
+        related_name="users",
         verbose_name="Избранные колыбельные",
     )
     favorite_meditations = models.ManyToManyField(
         Meditation,
-        through="Favorite",
+        through="FavoriteMeditation",
         through_fields=("users", "meditations"),
-        related_name="meditations",
+        related_name="users",
         verbose_name="Избранные медитации",
     )
     user_pic = models.ImageField(
@@ -64,7 +66,7 @@ class CustomUser(AbstractUser):
         "first_name",
         "last_name",
         "password",
-        "age",
+        "birth_date",
     ]
 
     class Meta:
@@ -76,55 +78,120 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-class Favorite(models.Model):
+class FavoriteFairytale(models.Model):
     users = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name="favorite",
-        verbose_name="Пользователь",
+        related_name="fairytales",
+        verbose_name="Пользователи",
     )
     fairytales = models.ForeignKey(
         Fairytale,
-        related_name="favorite_fairytales",
-        on_delete=models.SET_NULL,
-        verbose_name="Избранные сказки",
-        null=True,
-        blank=True,
+        related_name="fairytales",
+        on_delete=models.CASCADE,
+        verbose_name="Сказки",
+    )
+
+    class Meta:
+        verbose_name = ("Избранная сказка",)
+        verbose_name_plural = "Избранные сказки"
+        constraints = [
+            UniqueConstraint(
+                fields=("users", "fairytales"),
+                name="unique_users_fairytales",
+            )
+        ]
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return f"{self.users} {self.fairytales}"
+
+
+class FavoriteLullaby(models.Model):
+    users = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="lullabies",
+        verbose_name="Пользователи",
     )
     lullabies = models.ForeignKey(
         Lullaby,
-        related_name="favorite_lullabies",
-        on_delete=models.SET_NULL,
-        verbose_name="Избранные колыбельные",
-        null=True,
-        blank=True,
+        related_name="lullabies",
+        on_delete=models.CASCADE,
+        verbose_name="Колыбельные",
+    )
+
+    class Meta:
+        verbose_name = "Избранная колыбельная"
+        verbose_name_plural = "Избранные колыбельные"
+        constraints = [
+            UniqueConstraint(
+                fields=("users", "lullabies"), name="unique_users_lullabies"
+            )
+        ]
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return f"{self.users} {self.lullabies}"
+
+
+class FavoriteMeditation(models.Model):
+    users = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="meditations",
+        verbose_name="Пользователи",
     )
     meditations = models.ForeignKey(
         Meditation,
-        related_name="favorite_meditations",
-        on_delete=models.SET_NULL,
-        verbose_name="Избранные медитации",
-        null=True,
-        blank=True,
-    )
-    audiobooks = models.ForeignKey(
-        AudioBook,
-        related_name="favorite_audiobooks",
-        on_delete=models.SET_NULL,
-        verbose_name="Избранные аудиокниги",
+        related_name="meditations",
+        on_delete=models.CASCADE,
+        verbose_name="Медитации",
         null=True,
         blank=True,
     )
 
     class Meta:
-        verbose_name = ("Избранное",)
-        verbose_name_plural = "Избранные"
-        unique_together = (
-            ("users", "audiobooks"),
-            ("users", "lullabies"),
-            ("users", "meditations"),
-            ("users", "fairytales"),
-        )
+        verbose_name = "Избранная медитация"
+        verbose_name_plural = "Избранные медитации"
+        constraints = [
+            UniqueConstraint(
+                fields=("users", "meditations"),
+                name="unique_users_meditations",
+            )
+        ]
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return f"{self.users} {self.meditations}"
+
+
+class FavoriteAudiobook(models.Model):
+    users = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="audiobooks",
+        verbose_name="Пользователи",
+    )
+    audiobooks = models.ForeignKey(
+        AudioBook,
+        related_name="audiobooks",
+        on_delete=models.SET_NULL,
+        verbose_name="Аудиокниги",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = ("Избранная аудиокнига",)
+        verbose_name_plural = "Избранные аудиокниги"
+        constraints = [
+            UniqueConstraint(
+                fields=("users", "audiobooks"),
+                name="unique_users_audiobooks",
+            )
+        ]
+        ordering = ["-id"]
 
     def __str__(self):
-        return f"{self.users} {self.lullabies} {self.fairytales} {self.meditations} {self.audiobooks}"
+        return f"{self.users} {self.audiobooks}"
