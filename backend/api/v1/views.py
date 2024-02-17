@@ -1,10 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_multiple_model.pagination import MultipleModelLimitOffsetPagination
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 from django.conf import settings
 
@@ -17,15 +20,55 @@ from api.v1.serializers import (
     FavoriteLullabySerializer,
     FavoriteFairytaleSerializer,
     FavoriteAudiobookSerializer,
-    FavoriteMeditationSerializer,
+    FavoriteMeditationSerializer, NewsSerializer, MainSerializer,
 )
-from content.models import Lullaby, Fairytale, AudioBook, Meditation
+from content.models import Lullaby, Fairytale, AudioBook, Meditation, News
 from users.models import (
     FavoriteLullaby,
     FavoriteFairytale,
     FavoriteAudiobook,
     FavoriteMeditation,
 )
+
+
+class LimitPagination(MultipleModelLimitOffsetPagination):
+    default_limit = 3
+
+
+@extend_schema(tags=["Главная страница"])
+@extend_schema_view(
+    get=extend_schema(
+        summary="Список контента",
+        description="В поле <b><i>News</i></b> содержатся по 3 последние записи со всеми атрибутами от каждой категории контента. Остальные поля отображают только бесплатный контент. </br> Доступно всем пользователям без исключения",
+        responses={200: MainSerializer}
+    ))
+class MainAPIView(ObjectMultipleModelAPIView):
+    permission_classes = [AllowAny]
+    http_method_names = ["get"]
+    pagination_class = None
+
+    def get_querylist(self):
+        news = News(
+            lullabies=Lullaby.objects.order_by("-id")[:3],
+            fairytales=Fairytale.objects.all().order_by("-id")[:3],
+            meditations=Meditation.objects.all().order_by("-id")[:3],
+            audiobooks=AudioBook.objects.all().order_by("-id")[:3]),
+        querylist = [{"queryset": news, "serializer_class": NewsSerializer, "label": "News"},
+                {"queryset": Lullaby.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                    ), "serializer_class": LullabySerializer, "label": "Lullabies"},
+                {"queryset": Fairytale.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                    ), "serializer_class": FairytaleSerializer, "label": "Fairytales"},
+                {"queryset": AudioBook.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                    ), "serializer_class": AudiobookSerializer, "label": "Audiobooks"},
+                {"queryset": Meditation.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                    ), "serializer_class": MeditationSerializer, "label": "Meditations"},
+
+            ]
+        return querylist
 
 
 @extend_schema(tags=["Колыбельные"])

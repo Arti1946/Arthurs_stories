@@ -4,6 +4,11 @@ from django.conf import settings
 
 from content.validators import validate_file_type
 
+from collections import namedtuple
+
+
+News = namedtuple('News', ("lullabies", "fairytales", "audiobooks", "meditations"))
+
 
 def set_path_name(instance, filename):
     path = instance.__class__.__name__

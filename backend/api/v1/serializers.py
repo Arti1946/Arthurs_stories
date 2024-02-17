@@ -1,7 +1,7 @@
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from content.models import Lullaby, AudioBook, Fairytale, Meditation
+from content.models import Lullaby, AudioBook, Fairytale, Meditation, ContentInfo, News
 from users.models import (
     CustomUser,
     FavoriteFairytale,
@@ -89,3 +89,20 @@ class FavoriteMeditationSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("meditations", "users")
         model = FavoriteMeditation
+
+
+class NewsSerializer(serializers.Serializer):
+    lullabies = LullabySerializer(many=True)
+    audiobooks = AudiobookSerializer(many=True)
+    meditations = MeditationSerializer(many=True)
+    fairytales = FairytaleSerializer(many=True)
+
+
+class MainSerializer(serializers.Serializer):
+    news = NewsSerializer(many=True)
+    lullabies = LullabySerializer(many=True)
+    fairytales = FairytaleSerializer(many=True)
+    audiobooks = AudiobookSerializer(many=True)
+    meditations = MeditationSerializer(many=True)
+
+

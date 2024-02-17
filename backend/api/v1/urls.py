@@ -11,7 +11,7 @@ from api.v1.views import (
     LullabyViewSet,
     AudiobookViewSet,
     FairytaleViewSet,
-    MeditationViewSet,
+    MeditationViewSet, MainAPIView
 )
 
 router = routers.DefaultRouter()
@@ -23,6 +23,7 @@ router.register(r"meditations", MeditationViewSet, basename="meditations")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("main/", MainAPIView.as_view(), name="main"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
