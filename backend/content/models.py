@@ -1,16 +1,14 @@
 from django.db import models
 from django.db.models import UniqueConstraint
+from django.conf import settings
+
+from content.validators import validate_file_type
+
+from collections import namedtuple
 
 
-AGE_CHOICES = (
-    ("0-3", "0-3"),
-    ("3-6", "3-6"),
-    ("7-10", "7-10"),
-)
-TAGS = (
-    ("MORNING", "Утро"),
-    ("NOON", "День"),
-    ("EVENING", "Вечер"),
+News = namedtuple(
+    "News", ("lullabies", "fairytales", "audiobooks", "meditations")
 )
 
 
@@ -25,7 +23,11 @@ class ContentInfo(models.Model):
         auto_now_add=True, verbose_name="Дата загрузки"
     )
     file = models.FileField(
-        upload_to=set_path_name, null=False, blank=False, verbose_name="Файл"
+        upload_to=set_path_name,
+        null=False,
+        blank=False,
+        verbose_name="Файл",
+        validators=[validate_file_type],
     )
     duration = models.TimeField(
         verbose_name="Продолжительность", null=True, blank=True
@@ -43,7 +45,7 @@ class Fairytale(ContentInfo):
         max_length=500, verbose_name="Описание", unique=True
     )
     category = models.CharField(
-        max_length=5, choices=AGE_CHOICES, verbose_name="Категория"
+        max_length=5, choices=settings.AGE_CHOICES, verbose_name="Категория"
     )
 
     class Meta:
@@ -84,7 +86,9 @@ class AudioBook(ContentInfo):
         verbose_name="Описание", null=True, blank=True, unique=True
     )
     author = models.CharField(max_length=150, verbose_name="Автор")
-    chapter = models.PositiveSmallIntegerField()
+    chapter = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name="Глава"
+    )
 
     class Meta:
         verbose_name = "Аудио книга"
@@ -103,7 +107,9 @@ class AudioBook(ContentInfo):
 
 class Meditation(ContentInfo):
     category = models.CharField(max_length=150, verbose_name="Категория")
-    tags = models.CharField(max_length=150, choices=TAGS, verbose_name="Тег")
+    tags = models.CharField(
+        max_length=150, choices=settings.TAGS, verbose_name="Тег"
+    )
 
     class Meta:
         verbose_name = "Медитация"
