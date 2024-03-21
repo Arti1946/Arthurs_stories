@@ -19,7 +19,9 @@ from api.v1.serializers import (
     FavoriteLullabySerializer,
     FavoriteFairytaleSerializer,
     FavoriteAudiobookSerializer,
-    FavoriteMeditationSerializer, NewsSerializer, MainSerializer,
+    FavoriteMeditationSerializer,
+    NewsSerializer,
+    MainSerializer,
 )
 from content.models import Lullaby, Fairytale, AudioBook, Meditation, News
 from users.models import (
@@ -41,7 +43,8 @@ class LimitPagination(MultipleModelLimitOffsetPagination):
         description="В поле <b><i>News</i></b> содержатся по 2 последние записи со всеми атрибутами от каждой категории контента. Остальные поля отображают только бесплатный контент. </br> Доступно всем пользователям без исключения",
         responses={200: MainSerializer},
         filters=True,
-    ))
+    )
+)
 class MainAPIView(ObjectMultipleModelAPIView):
     filter_backends = (filters.SearchFilter,)
     search_fields = ("title",)
@@ -50,26 +53,49 @@ class MainAPIView(ObjectMultipleModelAPIView):
     pagination_class = None
 
     def get_querylist(self):
-        news = News(
-            lullabies=Lullaby.objects.order_by("-id")[:2],
-            fairytales=Fairytale.objects.order_by("-id")[:2],
-            meditations=Meditation.objects.order_by("-id")[:2],
-            audiobooks=AudioBook.objects.order_by("-id")[:2]),
+        news = (
+            News(
+                lullabies=Lullaby.objects.order_by("-id")[:2],
+                fairytales=Fairytale.objects.order_by("-id")[:2],
+                meditations=Meditation.objects.order_by("-id")[:2],
+                audiobooks=AudioBook.objects.order_by("-id")[:2],
+            ),
+        )
         querylist = [
-            {"queryset": Lullaby.objects.filter(
-                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ), "serializer_class": LullabySerializer, "label": "Lullabies"},
-            {"queryset": Fairytale.objects.filter(
-                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ), "serializer_class": FairytaleSerializer, "label": "Fairytales"},
-            {"queryset": AudioBook.objects.filter(
-                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ), "serializer_class": AudiobookSerializer, "label": "Audiobooks"},
-            {"queryset": Meditation.objects.filter(
-                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ), "serializer_class": MeditationSerializer, "label": "Meditations"},
-            {"queryset": news, "serializer_class": NewsSerializer, "label": "News"},
-            ]
+            {
+                "queryset": Lullaby.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ),
+                "serializer_class": LullabySerializer,
+                "label": "Lullabies",
+            },
+            {
+                "queryset": Fairytale.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ),
+                "serializer_class": FairytaleSerializer,
+                "label": "Fairytales",
+            },
+            {
+                "queryset": AudioBook.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ),
+                "serializer_class": AudiobookSerializer,
+                "label": "Audiobooks",
+            },
+            {
+                "queryset": Meditation.objects.filter(
+                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ),
+                "serializer_class": MeditationSerializer,
+                "label": "Meditations",
+            },
+            {
+                "queryset": news,
+                "serializer_class": NewsSerializer,
+                "label": "News",
+            },
+        ]
         if self.request.query_params:
             querylist.pop()
         return querylist

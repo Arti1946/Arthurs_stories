@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     "djoser",
     "magic",
     "drf_spectacular",
-    'drf_multiple_model',
+    "drf_multiple_model",
     "django_filters",
     "mutagen",
     "users.apps.UsersConfig",

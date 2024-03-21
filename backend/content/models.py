@@ -7,7 +7,9 @@ from content.validators import validate_file_type
 from collections import namedtuple
 
 
-News = namedtuple('News', ("lullabies", "fairytales", "audiobooks", "meditations"))
+News = namedtuple(
+    "News", ("lullabies", "fairytales", "audiobooks", "meditations")
+)
 
 
 def set_path_name(instance, filename):

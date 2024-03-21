@@ -11,7 +11,8 @@ from api.v1.views import (
     LullabyViewSet,
     AudiobookViewSet,
     FairytaleViewSet,
-    MeditationViewSet, MainAPIView
+    MeditationViewSet,
+    MainAPIView,
 )
 
 router = routers.DefaultRouter()
