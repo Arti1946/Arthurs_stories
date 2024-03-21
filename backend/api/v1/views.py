@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_multiple_model.pagination import MultipleModelLimitOffsetPagination
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -39,35 +38,40 @@ class LimitPagination(MultipleModelLimitOffsetPagination):
 @extend_schema_view(
     get=extend_schema(
         summary="Список контента",
-        description="В поле <b><i>News</i></b> содержатся по 3 последние записи со всеми атрибутами от каждой категории контента. Остальные поля отображают только бесплатный контент. </br> Доступно всем пользователям без исключения",
-        responses={200: MainSerializer}
+        description="В поле <b><i>News</i></b> содержатся по 2 последние записи со всеми атрибутами от каждой категории контента. Остальные поля отображают только бесплатный контент. </br> Доступно всем пользователям без исключения",
+        responses={200: MainSerializer},
+        filters=True,
     ))
 class MainAPIView(ObjectMultipleModelAPIView):
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("title",)
     permission_classes = [AllowAny]
     http_method_names = ["get"]
     pagination_class = None
 
     def get_querylist(self):
         news = News(
-            lullabies=Lullaby.objects.order_by("-id")[:3],
-            fairytales=Fairytale.objects.all().order_by("-id")[:3],
-            meditations=Meditation.objects.all().order_by("-id")[:3],
-            audiobooks=AudioBook.objects.all().order_by("-id")[:3]),
-        querylist = [{"queryset": news, "serializer_class": NewsSerializer, "label": "News"},
-                {"queryset": Lullaby.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                    ), "serializer_class": LullabySerializer, "label": "Lullabies"},
-                {"queryset": Fairytale.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                    ), "serializer_class": FairytaleSerializer, "label": "Fairytales"},
-                {"queryset": AudioBook.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                    ), "serializer_class": AudiobookSerializer, "label": "Audiobooks"},
-                {"queryset": Meditation.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                    ), "serializer_class": MeditationSerializer, "label": "Meditations"},
-
+            lullabies=Lullaby.objects.order_by("-id")[:2],
+            fairytales=Fairytale.objects.order_by("-id")[:2],
+            meditations=Meditation.objects.order_by("-id")[:2],
+            audiobooks=AudioBook.objects.order_by("-id")[:2]),
+        querylist = [
+            {"queryset": Lullaby.objects.filter(
+                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ), "serializer_class": LullabySerializer, "label": "Lullabies"},
+            {"queryset": Fairytale.objects.filter(
+                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ), "serializer_class": FairytaleSerializer, "label": "Fairytales"},
+            {"queryset": AudioBook.objects.filter(
+                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ), "serializer_class": AudiobookSerializer, "label": "Audiobooks"},
+            {"queryset": Meditation.objects.filter(
+                id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
+                ), "serializer_class": MeditationSerializer, "label": "Meditations"},
+            {"queryset": news, "serializer_class": NewsSerializer, "label": "News"},
             ]
+        if self.request.query_params:
+            querylist.pop()
         return querylist
 
 
@@ -83,7 +87,6 @@ class LullabyViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     http_method_names = ["get", "head", "options", "post", "delete"]
     permission_classes = [FavoritePermission]
-    filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
         if self.request.user.is_premium:
