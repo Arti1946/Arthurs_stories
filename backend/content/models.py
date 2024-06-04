@@ -1,6 +1,6 @@
+from content import choises
 from django.db import models
 from django.db.models import UniqueConstraint
-from django.conf import settings
 
 from content.validators import validate_file_type
 
@@ -19,7 +19,7 @@ def set_path_name(instance, filename):
 
 class ContentInfo(models.Model):
     title = models.CharField(max_length=150, verbose_name="Название")
-    pub_date = models.DateTimeField(
+    pub_date = models.DateField(
         auto_now_add=True, verbose_name="Дата загрузки"
     )
     file = models.FileField(
@@ -32,6 +32,7 @@ class ContentInfo(models.Model):
     duration = models.TimeField(
         verbose_name="Продолжительность", null=True, blank=True
     )
+    is_free = models.BooleanField(verbose_name="Бесплатный контент")
 
     class Meta:
         abstract = True
@@ -45,7 +46,7 @@ class Fairytale(ContentInfo):
         max_length=500, verbose_name="Описание", unique=True
     )
     category = models.CharField(
-        max_length=5, choices=settings.AGE_CHOICES, verbose_name="Категория"
+        max_length=150, choices=choises.Ages, verbose_name="Категория"
     )
 
     class Meta:
@@ -108,7 +109,7 @@ class AudioBook(ContentInfo):
 class Meditation(ContentInfo):
     category = models.CharField(max_length=150, verbose_name="Категория")
     tags = models.CharField(
-        max_length=150, choices=settings.TAGS, verbose_name="Тег"
+        max_length=150, choices=choises.Tags, verbose_name="Тег"
     )
 
     class Meta:

@@ -6,8 +6,6 @@ from content.models import (
     AudioBook,
     Fairytale,
     Meditation,
-    ContentInfo,
-    News,
 )
 from users.models import (
     CustomUser,
@@ -21,25 +19,51 @@ from users.models import (
 class LullabySerializer(serializers.ModelSerializer):
     class Meta:
         model = Lullaby
-        fields = "__all__"
+        fields = ("title", "author", "duration", "pub_date", "file")
+
+
+class NewsLullabySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lullaby
+        fields = ("title", "author", "duration", "pub_date")
+
 
 
 class AudiobookSerializer(serializers.ModelSerializer):
     class Meta:
         model = AudioBook
-        fields = "__all__"
+        fields = ("title", "chapter", "author", "description", "duration", "pub_date", "file")
+
+
+class NewsAudiobookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AudioBook
+        fields = ("title", "chapter", "author", "description", "duration", "pub_date")
+
 
 
 class FairytaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fairytale
-        fields = "__all__"
+        fields = ("title", "author", "category", "duration", "pub_date", "file")
+
+
+class NewsFairytaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fairytale
+        fields = ("title", "author", "category", "duration", "pub_date")
 
 
 class MeditationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meditation
-        fields = "__all__"
+        fields = ("title", "category", "tags", "duration", "pub_date", "file")
+
+
+class NewsMeditationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meditation
+        fields = ("title", "category", "tags", "duration", "pub_date")
 
 
 class CustomUserSerializer(UserSerializer):
@@ -99,10 +123,10 @@ class FavoriteMeditationSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(serializers.Serializer):
-    lullabies = LullabySerializer(many=True)
-    audiobooks = AudiobookSerializer(many=True)
-    meditations = MeditationSerializer(many=True)
-    fairytales = FairytaleSerializer(many=True)
+    lullabies = NewsLullabySerializer(many=True)
+    audiobooks = NewsAudiobookSerializer(many=True)
+    meditations = NewsMeditationSerializer(many=True)
+    fairytales = NewsFairytaleSerializer(many=True)
 
 
 class MainSerializer(serializers.Serializer):

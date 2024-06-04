@@ -14,6 +14,7 @@ class FairytaleAdmin(admin.ModelAdmin):
         "pub_date",
         "file",
         "duration",
+        "is_free",
     )
     list_editable = (
         "title",
@@ -21,6 +22,7 @@ class FairytaleAdmin(admin.ModelAdmin):
         "description",
         "category",
         "file",
+        "is_free",
     )
     list_filter = (
         "title",
@@ -34,6 +36,7 @@ class FairytaleAdmin(admin.ModelAdmin):
         "category",
     )
     ordering = ("-pub_date",)
+    readonly_fields = ["duration"]
 
 
 @admin.register(Lullaby)
@@ -45,11 +48,13 @@ class LullabyAdmin(admin.ModelAdmin):
         "pub_date",
         "file",
         "duration",
+        "is_free",
     )
     list_editable = (
         "title",
         "author",
         "file",
+        "is_free",
     )
     search_fields = (
         "title",
@@ -61,6 +66,7 @@ class LullabyAdmin(admin.ModelAdmin):
         "author",
         "pub_date",
     )
+    readonly_fields = ["duration"]
 
 
 @admin.register(AudioBook)
@@ -74,6 +80,7 @@ class AudioBookAdmin(admin.ModelAdmin):
         "file",
         "duration",
         "chapter",
+        "is_free",
     )
     list_editable = (
         "title",
@@ -81,6 +88,7 @@ class AudioBookAdmin(admin.ModelAdmin):
         "description",
         "file",
         "chapter",
+        "is_free",
     )
     list_filter = (
         "title",
@@ -92,6 +100,7 @@ class AudioBookAdmin(admin.ModelAdmin):
         "author",
         "title",
     )
+    readonly_fields = ["duration"]
 
 
 @admin.register(Meditation)
@@ -104,12 +113,14 @@ class MeditationAdmin(admin.ModelAdmin):
         "file",
         "duration",
         "tags",
+        "is_free",
     )
     list_editable = (
         "title",
         "tags",
         "category",
         "file",
+        "is_free",
     )
     list_filter = (
         "title",
@@ -119,3 +130,4 @@ class MeditationAdmin(admin.ModelAdmin):
     )
     ordering = ("-pub_date",)
     search_fields = ("title",)
+    readonly_fields = ["duration"]

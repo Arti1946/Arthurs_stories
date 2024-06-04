@@ -8,8 +8,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
-from django.conf import settings
-
 from api.v1.permissions import FavoritePermission
 from api.v1.serializers import (
     LullabySerializer,
@@ -61,32 +59,27 @@ class MainAPIView(ObjectMultipleModelAPIView):
                 audiobooks=AudioBook.objects.order_by("-id")[:2],
             ),
         )
+        free = False
+        if self.request.user.is_authenticated and self.request.user.is_premium:
+            free = True
         querylist = [
             {
-                "queryset": Lullaby.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ),
+                "queryset": Lullaby.objects.filter(is_free=free).order_by("title")[:3],
                 "serializer_class": LullabySerializer,
                 "label": "Lullabies",
             },
             {
-                "queryset": Fairytale.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ),
+                "queryset": Fairytale.objects.filter(is_free=free).order_by("title")[:3],
                 "serializer_class": FairytaleSerializer,
                 "label": "Fairytales",
             },
             {
-                "queryset": AudioBook.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ),
+                "queryset": AudioBook.objects.filter(is_free=free).order_by("title")[:3],
                 "serializer_class": AudiobookSerializer,
                 "label": "Audiobooks",
             },
             {
-                "queryset": Meditation.objects.filter(
-                    id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-                ),
+                "queryset": Meditation.objects.filter(is_free=free).order_by("title")[:3],
                 "serializer_class": MeditationSerializer,
                 "label": "Meditations",
             },
@@ -115,11 +108,9 @@ class LullabyViewSet(viewsets.ModelViewSet):
     permission_classes = [FavoritePermission]
 
     def get_queryset(self):
-        if self.request.user.is_premium:
+        if self.request.user.is_authenticated and self.request.user.is_premium:
             return Lullaby.objects.all()
-        return Lullaby.objects.filter(
-            id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-        )
+        return Lullaby.objects.filter(is_free=True)
 
     @extend_schema(
         summary="Избранное",
@@ -178,11 +169,9 @@ class FairytaleViewSet(viewsets.ModelViewSet):
     permission_classes = [FavoritePermission]
 
     def get_queryset(self):
-        if self.request.user.is_premium:
+        if self.request.user.is_authenticated and self.request.user.is_premium:
             return Fairytale.objects.all()
-        return Fairytale.objects.filter(
-            id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-        )
+        return Fairytale.objects.filter(is_free=True)
 
     @extend_schema(
         summary="Избранное",
@@ -238,11 +227,9 @@ class AudiobookViewSet(viewsets.ModelViewSet):
     permission_classes = [FavoritePermission]
 
     def get_queryset(self):
-        if self.request.user.is_premium:
+        if self.request.user.is_authenticated and self.request.user.is_premium:
             return AudioBook.objects.all()
-        return AudioBook.objects.filter(
-            id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-        )
+        return AudioBook.objects.filter(is_free=True)
 
     @extend_schema(
         summary="Избранное",
@@ -301,11 +288,9 @@ class MeditationViewSet(viewsets.ModelViewSet):
     permission_classes = [FavoritePermission]
 
     def get_queryset(self):
-        if self.request.user.is_premium:
+        if self.request.user.is_authenticated and self.request.user.is_premium:
             return Meditation.objects.all()
-        return Meditation.objects.filter(
-            id__lte=settings.QUANTITY_OF_FREE_CONTENT_PER_CLASS
-        )
+        return Meditation.objects.filter(is_free=True)
 
     @extend_schema(
         summary="Избранное",
