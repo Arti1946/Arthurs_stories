@@ -17,6 +17,8 @@ from users.models import (
 
 
 class LullabySerializer(serializers.ModelSerializer):
+    duration = serializers.TimeField(format='%M:%S')
+
     class Meta:
         model = Lullaby
         fields = ("title", "author", "duration", "pub_date", "file")
@@ -26,7 +28,6 @@ class NewsLullabySerializer(serializers.ModelSerializer):
     class Meta:
         model = Lullaby
         fields = ("title", "author", "duration", "pub_date")
-
 
 
 class AudiobookSerializer(serializers.ModelSerializer):

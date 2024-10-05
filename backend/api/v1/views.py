@@ -19,7 +19,7 @@ from api.v1.serializers import (
     FavoriteAudiobookSerializer,
     FavoriteMeditationSerializer,
     NewsSerializer,
-    MainSerializer,
+    MainSerializer, NewsLullabySerializer,
 )
 from content.models import Lullaby, Fairytale, AudioBook, Meditation, News
 from users.models import (
@@ -111,6 +111,12 @@ class LullabyViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated and self.request.user.is_premium:
             return Lullaby.objects.all()
         return Lullaby.objects.filter(is_free=True)
+
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated and self.request.user.is_premium:
+            return LullabySerializer
+        return NewsLullabySerializer
+
 
     @extend_schema(
         summary="Избранное",
