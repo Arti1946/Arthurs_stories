@@ -35,8 +35,6 @@ INSTALLED_APPS = [
     "djoser",
     "dotenv",
     "drf_spectacular",
-    "drf_multiple_model",
-    "django_filters",
     "mutagen",
     "users.apps.UsersConfig",
     "content.apps.ContentConfig",
@@ -161,4 +159,4 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-VALID_AUDIO_FORMATS = ["mp3", "wav"]
+VALID_AUDIO_FORMATS = ["mp3"]

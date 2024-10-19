@@ -14,14 +14,15 @@ class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150, unique=True, validators=[validate_username]
     )
-    first_name = models.CharField(
-        "Имя", max_length=150, blank=False, null=False
-    )
+    first_name = models.CharField("Имя", max_length=150, blank=True, null=True)
     last_name = models.CharField(
-        "Фамилия", max_length=150, blank=False, null=False
+        "Фамилия", max_length=150, blank=True, null=True
     )
     birth_date = models.DateField(
-        "Дата рождения", validators=[validate_birth_date]
+        "Дата рождения",
+        validators=[validate_birth_date],
+        blank=True,
+        null=True,
     )
     password = models.CharField(
         "Пароль", max_length=150, blank=False, null=False

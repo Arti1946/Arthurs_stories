@@ -5,7 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("content", "0004_remove_content_unique_fairytale_title_author_and_more"),
+        (
+            "content",
+            "0004_remove_content_unique_fairytale_title_author_and_more",
+        ),
     ]
 
     operations = [

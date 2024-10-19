@@ -9,12 +9,14 @@ class ContentSerializer(serializers.ModelSerializer):
     duration = serializers.TimeField(format="%H:%M")
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return {
-            key: value
-            for key, value in representation.items()
-            if value is not None
-        }
+        request = self.context.get("request")
+        user = request.user
+        ret = super().to_representation(instance)
+        if (
+            not user.is_authenticated or not user.is_premium
+        ) and not instance.is_free:
+            ret["file"] = None
+        return {key: value for key, value in ret.items() if value is not None}
 
     class Meta:
         model = Content
