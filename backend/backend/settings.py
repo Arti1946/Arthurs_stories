@@ -3,15 +3,17 @@ from datetime import timedelta
 
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = (
-    "django-insecure-zdlmk&^f_o_cd^^qs5fnz2*l5xn%81*iqi8qb!p^5nc0rd@66q"
-)
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -31,10 +33,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
-    "magic",
+    "dotenv",
     "drf_spectacular",
-    "drf_multiple_model",
-    "django_filters",
     "mutagen",
     "users.apps.UsersConfig",
     "content.apps.ContentConfig",
@@ -70,13 +70,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
-
-DATABASES = {
-    "default": {
+DATABASES = {}
+DATABASE = os.getenv("DATABASE")
+if DATABASE == "postgres":
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "django"),
+        "USER": os.getenv("POSTGRES_USER", "django"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "django_password"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": os.getenv("DB_PORT", 5432),
+    }
+else:
+    DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
-}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -104,7 +113,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
@@ -114,7 +123,7 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
@@ -144,21 +153,10 @@ DJOSER = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "ARTUR'S STORIES API",
-    "DESCRIPTION": ("API-Документация для SPA ARTUR'S STORIES."),
+    "DESCRIPTION": "API-Документация для SPA ARTUR'S STORIES.",
     "VERSION": "0.1.0",
     "SCHEMA_PATH_PREFIX": "/api/v1/",
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-QUANTITY_OF_FREE_CONTENT_PER_CLASS = 4
-VALID_AUDIO_FORMATS = ["mp3", "wav"]
-AGE_CHOICES = (
-    ("0-3", "0-3"),
-    ("3-6", "3-6"),
-    ("7-10", "7-10"),
-)
-TAGS = (
-    ("MORNING", "Утро"),
-    ("NOON", "День"),
-    ("EVENING", "Вечер"),
-)
+VALID_AUDIO_FORMATS = ["mp3"]
