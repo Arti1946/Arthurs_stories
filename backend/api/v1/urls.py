@@ -7,24 +7,14 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from api.v1.views import (
-    LullabyViewSet,
-    AudiobookViewSet,
-    FairytaleViewSet,
-    MeditationViewSet,
-    MainAPIView,
-)
+from api.v1.views import ContentViewSet
 
 router = routers.DefaultRouter()
-router.register(r"lullabies", LullabyViewSet, basename="lullabies")
-router.register(r"audiobooks", AudiobookViewSet, basename="audiobooks")
-router.register(r"fairytales", FairytaleViewSet, basename="fairytales")
-router.register(r"meditations", MeditationViewSet, basename="meditations")
+router.register(r"content", ContentViewSet, basename="content")
 
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("main/", MainAPIView.as_view(), name="main"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),

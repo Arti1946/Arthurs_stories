@@ -72,9 +72,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
-
-DATABASES = {
-    "default": {
+DATABASES = {}
+DATABASE = os.getenv("DATABASE")
+if DATABASE == "postgres":
+    DATABASES["default"] = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("POSTGRES_DB", "django"),
         "USER": os.getenv("POSTGRES_USER", "django"),
@@ -82,7 +83,11 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST", "db"),
         "PORT": os.getenv("DB_PORT", 5432),
     }
-}
+else:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -150,7 +155,7 @@ DJOSER = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "ARTUR'S STORIES API",
-    "DESCRIPTION": ("API-Документация для SPA ARTUR'S STORIES."),
+    "DESCRIPTION": "API-Документация для SPA ARTUR'S STORIES.",
     "VERSION": "0.1.0",
     "SCHEMA_PATH_PREFIX": "/api/v1/",
     "SERVE_INCLUDE_SCHEMA": False,

@@ -24,12 +24,3 @@ class CustomUserAdmin(admin.ModelAdmin):
         today_date = date.today()
         age = today_date - birth_date
         return age.days // 365
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.prefetch_related(
-            "favorite_audiobooks",
-            "favorite_lullabies",
-            "favorite_meditations",
-            "favorite_fairytales",
-        )
